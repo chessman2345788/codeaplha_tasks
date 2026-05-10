@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SocialApp — Sign In</title>
+  <meta name="description" content="Sign in to SocialApp and connect with the world."/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="js/router.js"></script>
+</head>
+<body data-require-guest>
+
+  <div class="auth-layout">
+
+    <!-- Branding panel (desktop) -->
+    <div class="auth-brand">
+      <i class="fa-solid fa-shapes auth-brand-icon"></i>
+      <h1 class="auth-brand-title">SocialApp</h1>
+      <p class="auth-brand-desc">Connect with friends, share your life, and discover the world.</p>
+    </div>
+
+    <!-- Form panel -->
+    <div class="auth-form-panel">
+      <div class="auth-logo">
+        <div class="auth-logo-icon"><i class="fa-solid fa-shapes"></i></div>
+        <span class="auth-logo-text">SocialApp</span>
+        <p class="auth-tagline">Welcome back — sign in to continue</p>
+      </div>
+
+      <form id="login-form" class="auth-form" novalidate>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com" required autocomplete="email"/>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password"/>
+        </div>
+        <button id="login-btn" type="submit" class="btn btn-primary btn-full">Sign In</button>
+      </form>
+
+      <p class="auth-footer-text">
+        Don't have an account?
+        <a href="register.html" class="auth-link">Create one free</a>
+      </p>
+    </div>
+
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

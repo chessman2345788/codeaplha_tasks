@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SocialApp — Home</title>
+  <meta name="description" content="Your SocialApp home feed — share, like, and comment."/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <!-- Router must be first so auth guard fires before DOMContentLoaded -->
+  <script src="js/router.js"></script>
+</head>
+<body data-require-auth>
+
+  <!-- ══════════════════════════════════════════
+       LEFT SIDEBAR (desktop)
+  ══════════════════════════════════════════ -->
+  <div class="app-layout">
+
+    <aside class="sidebar sidebar-left">
+      <!-- Logo -->
+      <a href="feed.html" class="sidebar-logo">
+        <div class="logo-icon"><i class="fa-solid fa-shapes"></i></div>
+        <span class="logo-text">Social</span>
+      </a>
+
+      <!-- Nav links -->
+      <nav class="sidebar-nav">
+        <a href="feed.html" class="nav-link active">
+          <i class="fa-solid fa-house"></i> Home
+        </a>
+        <a href="explore.html" class="nav-link">
+          <i class="fa-solid fa-compass"></i> Explore
+        </a>
+        <a href="notifications.html" class="nav-link" style="position:relative;">
+          <i class="fa-solid fa-bell"></i> Notifications
+          <span id="notif-badge"></span>
+        </a>
+        <a href="messages.html" class="nav-link">
+          <i class="fa-solid fa-envelope"></i> Messages
+        </a>
+        <a href="profile.html" class="nav-link">
+          <i class="fa-regular fa-user"></i> Profile
+        </a>
+      </nav>
+
+      <!-- Bottom controls -->
+      <div class="sidebar-bottom">
+        <button id="theme-toggle" class="nav-link" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;">
+          <i class="fa-solid fa-moon"></i> Theme
+        </button>
+        <button data-logout class="nav-link logout-btn" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign out
+        </button>
+      </div>
+    </aside>
+
+    <!-- ══════════════════════════════════════════
+         MOBILE TOP BAR
+    ══════════════════════════════════════════ -->
+    <header class="mobile-topbar">
+      <a href="feed.html" class="mobile-logo">
+        <div class="logo-icon sm"><i class="fa-solid fa-shapes"></i></div>
+      </a>
+      <div class="mobile-topbar-actions">
+        <button id="theme-toggle-mobile" class="icon-action-btn"><i class="fa-solid fa-moon"></i></button>
+        <a href="profile.html" class="icon-action-btn"><i class="fa-regular fa-user"></i></a>
+      </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════
+         CENTER FEED
+    ══════════════════════════════════════════ -->
+    <main class="feed-main">
+
+      <!-- Create Post -->
+      <div class="create-post-card">
+        <div class="create-post-row">
+          <div class="post-avatar" id="create-avatar">?</div>
+          <textarea
+            id="post-content"
+            class="create-post-textarea"
+            placeholder="What's on your mind?"
+            rows="2"
+            maxlength="500"
+          ></textarea>
+        </div>
+
+        <!-- Media Preview -->
+        <div id="media-preview" class="media-preview-wrap hidden"></div>
+
+        <div class="create-post-footer">
+          <!-- Hidden file input -->
+          <input type="file" id="media-input" accept="image/*,video/*" style="display:none"/>
+
+          <div class="create-post-actions">
+            <button type="button" class="media-attach-btn" onclick="document.getElementById('media-input').click()" title="Add photo or video">
+              <i class="fa-regular fa-image"></i>
+            </button>
+            <button type="button" id="remove-media" class="media-attach-btn remove-btn hidden" title="Remove media">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span id="char-count" class="char-count-badge">0 / 500</span>
+            <button id="post-btn" class="btn btn-primary" style="width:auto;padding:9px 22px;">Post</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Posts -->
+      <div id="posts-container"></div>
+
+    </main>
+
+    <!-- ══════════════════════════════════════════
+         RIGHT SIDEBAR (desktop)
+    ══════════════════════════════════════════ -->
+    <aside class="sidebar sidebar-right">
+      <!-- Search -->
+      <div class="search-wrap">
+        <i class="fa-solid fa-magnifying-glass search-icon-inner"></i>
+        <input type="text" id="search-input" placeholder="Search posts or users…" class="search-field"/>
+      </div>
+
+      <!-- Profile mini card -->
+      <div class="mini-profile-card">
+        <div class="mini-profile-top">
+          <div class="post-avatar lg" id="sidebar-avatar">?</div>
+          <div>
+            <div class="mini-username" id="sidebar-username">Loading…</div>
+            <div class="mini-handle" id="sidebar-handle">@…</div>
+          </div>
+        </div>
+        <div class="mini-stats">
+          <div class="mini-stat"><span id="sidebar-posts">0</span><label>Posts</label></div>
+          <div class="mini-stat"><span id="sidebar-followers">0</span><label>Followers</label></div>
+          <div class="mini-stat"><span id="sidebar-following">0</span><label>Following</label></div>
+        </div>
+      </div>
+
+      <!-- Network -->
+      <div class="network-card">
+        <h3 class="network-title"><i class="fa-solid fa-users" style="color:var(--primary)"></i> Network</h3>
+        <p class="network-label">Followers</p>
+        <div id="followers-list"></div>
+        <p class="network-label" style="margin-top:12px;">Following</p>
+        <div id="following-list"></div>
+      </div>
+
+      <p class="sidebar-footer">© 2026 SocialApp</p>
+    </aside>
+
+  </div><!-- /.app-layout -->
+
+  <!-- ══════════════════════════════════════════
+       MOBILE BOTTOM NAV
+  ══════════════════════════════════════════ -->
+  <nav class="mobile-bottom-nav">
+    <a href="feed.html" class="mob-nav-item active"><i class="fa-solid fa-house"></i></a>
+    <a href="explore.html" class="mob-nav-item"><i class="fa-solid fa-compass"></i></a>
+    <a href="notifications.html" class="mob-nav-item" style="position:relative;">
+      <i class="fa-solid fa-bell"></i>
+    </a>
+    <a href="messages.html" class="mob-nav-item"><i class="fa-solid fa-envelope"></i></a>
+    <a href="profile.html" class="mob-nav-item"><i class="fa-regular fa-user"></i></a>
+  </nav>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/feed.js"></script>
+  <script>
+    // Sync mobile theme toggle to desktop toggle
+    document.getElementById('theme-toggle-mobile')?.addEventListener('click', () => {
+      document.getElementById('theme-toggle')?.click();
+    });
+  </script>
+</body>
+</html>

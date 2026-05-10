@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SocialApp — Notifications</title>
+  <meta name="description" content="Your SocialApp notifications."/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="js/router.js"></script>
+</head>
+<body data-require-auth>
+
+  <div class="app-layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar sidebar-left">
+      <a href="feed.html" class="sidebar-logo">
+        <div class="logo-icon"><i class="fa-solid fa-shapes"></i></div>
+        <span class="logo-text">Social</span>
+      </a>
+      <nav class="sidebar-nav">
+        <a href="feed.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="explore.html" class="nav-link"><i class="fa-solid fa-compass"></i> Explore</a>
+        <a href="notifications.html" class="nav-link active"><i class="fa-solid fa-bell"></i> Notifications</a>
+        <a href="messages.html" class="nav-link"><i class="fa-solid fa-envelope"></i> Messages</a>
+        <a href="profile.html" class="nav-link"><i class="fa-regular fa-user"></i> Profile</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <button id="theme-toggle" class="nav-link" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;">
+          <i class="fa-solid fa-moon"></i> Theme
+        </button>
+        <button data-logout class="nav-link logout-btn" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign out
+        </button>
+      </div>
+    </aside>
+
+    <!-- MOBILE TOP BAR -->
+    <header class="mobile-topbar">
+      <a href="feed.html" class="mobile-logo">
+        <div class="logo-icon sm"><i class="fa-solid fa-shapes"></i></div>
+      </a>
+      <button id="theme-toggle-mobile" class="icon-action-btn"><i class="fa-solid fa-moon"></i></button>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="feed-main">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <h1 class="page-title">Notifications</h1>
+          <p class="page-subtitle">See who interacted with you</p>
+        </div>
+        <button id="mark-all-read-btn" class="btn btn-outline" style="font-size:.82rem;padding:7px 16px;">
+          <i class="fa-solid fa-check-double"></i> Mark all read
+        </button>
+      </div>
+
+      <div id="notifications-container">
+        <div class="notif-skeleton"></div>
+        <div class="notif-skeleton"></div>
+        <div class="notif-skeleton"></div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mobile-bottom-nav">
+    <a href="feed.html" class="mob-nav-item"><i class="fa-solid fa-house"></i></a>
+    <a href="explore.html" class="mob-nav-item"><i class="fa-solid fa-compass"></i></a>
+    <a href="notifications.html" class="mob-nav-item active"><i class="fa-solid fa-bell"></i></a>
+    <a href="messages.html" class="mob-nav-item"><i class="fa-solid fa-envelope"></i></a>
+    <a href="profile.html" class="mob-nav-item"><i class="fa-regular fa-user"></i></a>
+  </nav>
+
+  <div id="toast"></div>
+
+  <script src="js/theme.js"></script>
+  <script>
+    document.getElementById('theme-toggle-mobile')?.addEventListener('click', () =>
+      document.getElementById('theme-toggle')?.click()
+    );
+
+    var token = localStorage.getItem('token');
+
+    function authHeaders() {
+      return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+    }
+
+    function showToast(msg, type) {
+      var t = document.getElementById('toast');
+      if (!t) return;
+      t.textContent = msg;
+      t.className = 'toast-visible toast-' + (type || 'success');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(function () { t.className = ''; }, 3200);
+    }
+
+    function escapeHTML(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function timeAgo(d) {
+      var s = Math.floor((Date.now() - new Date(d)) / 1000);
+      if (s < 60) return 'just now';
+      if (s < 3600) return Math.floor(s / 60) + 'm ago';
+      if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+      return Math.floor(s / 86400) + 'd ago';
+    }
+
+    var typeIcon = { like: '❤️', comment: '💬', follow: '👤' };
+    var typeMsg  = { like: 'liked your post', comment: 'commented on your post', follow: 'started following you' };
+
+    function renderNotifications(notifications) {
+      var c = document.getElementById('notifications-container');
+      if (!notifications.length) {
+        c.innerHTML =
+          '<div class="empty-state">' +
+            '<div class="empty-icon"><i class="fa-solid fa-bell-slash" style="color:var(--primary)"></i></div>' +
+            '<p class="empty-msg">No notifications yet</p>' +
+            '<p style="font-size:.85rem;color:var(--muted);margin-top:8px;">Interactions with your posts will appear here.</p>' +
+          '</div>';
+        return;
+      }
+      c.innerHTML = notifications.map(function(n) {
+        var sender = n.sender ? n.sender.username : 'Someone';
+        var icon   = typeIcon[n.type] || '🔔';
+        var msg    = typeMsg[n.type] || 'interacted with you';
+        return (
+          '<div class="notif-item' + (n.read ? '' : ' notif-unread') + '">' +
+            '<div class="notif-icon">' + icon + '</div>' +
+            '<div class="notif-body">' +
+              '<a href="profile.html?id=' + (n.sender ? n.sender._id : '') + '" class="notif-sender">' + escapeHTML(sender) + '</a>' +
+              ' <span class="notif-msg">' + msg + '</span>' +
+              (n.post ? ' <span class="notif-excerpt">"' + escapeHTML((n.post.content || '').substring(0, 40)) + '…"</span>' : '') +
+            '</div>' +
+            '<span class="notif-time">' + timeAgo(n.createdAt) + '</span>' +
+          '</div>'
+        );
+      }).join('');
+    }
+
+    async function loadNotifications() {
+      var c = document.getElementById('notifications-container');
+      try {
+        var res  = await fetch('/api/notifications', { headers: authHeaders() });
+        var data = await res.json();
+        renderNotifications(data.notifications || []);
+      } catch(e) {
+        c.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><p class="empty-msg">Could not load notifications.</p></div>';
+      }
+    }
+
+    document.getElementById('mark-all-read-btn')?.addEventListener('click', async function() {
+      try {
+        await fetch('/api/notifications/read', { method: 'PUT', headers: authHeaders() });
+        showToast('All marked as read');
+        loadNotifications();
+      } catch(e) {
+        showToast('Error', 'error');
+      }
+    });
+
+    loadNotifications();
+  </script>
+</body>
+</html>
