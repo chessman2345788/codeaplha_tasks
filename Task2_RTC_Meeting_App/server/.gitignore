@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Environment variables — never commit real credentials
+.env
+
+# File uploads (user-uploaded files should not be tracked)
+uploads/
+
+# OS / Editor artifacts
+.DS_Store
+Thumbs.db
+*.log
